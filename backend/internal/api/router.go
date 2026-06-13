@@ -96,6 +96,7 @@ func (s *Server) setupRoutes() {
 		// Intelligence
 		r.Get("/intelligence", s.handleListIntelligence)
 		r.Get("/intelligence/latest", s.handleGetLatestIntelligence)
+		r.Get("/intelligence/cascading-risks", s.handleListCascadingRisks)
 		r.Get("/intelligence/{id}", s.handleGetIntelligence)
 
 		// Relationships

@@ -11,36 +11,19 @@ interface RiskGaugeProps {
 }
 
 function getRiskColor(score: number): string {
-  if (score >= 80) return "#ef4444";
-  if (score >= 60) return "#f97316";
-  if (score >= 40) return "#eab308";
-  if (score >= 20) return "#22c55e";
-  return "#06b6d4";
+  if (score >= 80) return "var(--ws-risk-critical)";
+  if (score >= 60) return "var(--ws-risk-high)";
+  if (score >= 40) return "var(--ws-risk-elevated)";
+  if (score >= 20) return "var(--ws-risk-moderate)";
+  return "var(--ws-risk-low)";
 }
 
-function getRiskLevel(score: number): string {
-  if (score >= 80) return "CRITICAL";
-  if (score >= 60) return "HIGH";
-  if (score >= 40) return "ELEVATED";
-  if (score >= 20) return "MODERATE";
-  return "LOW";
-}
-
-function getTrendIcon(trend: string): string {
+function getTrendText(trend: string): string {
   switch (trend) {
-    case "rising": return "↑";
-    case "falling": return "↓";
-    case "volatile": return "⇅";
-    default: return "→";
-  }
-}
-
-function getTrendClass(trend: string): string {
-  switch (trend) {
-    case "rising": return "ws-trend-rising";
-    case "falling": return "ws-trend-falling";
-    case "volatile": return "ws-trend-volatile";
-    default: return "ws-trend-stable";
+    case "rising": return "+ RISING";
+    case "falling": return "- FALLING";
+    case "volatile": return "~ VOLATILE";
+    default: return "= STABLE";
   }
 }
 
@@ -52,105 +35,96 @@ export default function RiskGauge({
   delay = 0,
 }: RiskGaugeProps) {
   const color = getRiskColor(score);
-  const level = getRiskLevel(score);
-  const barWidth = `${score}%`;
+  const trendLabel = getTrendText(trend);
+
+  // Generate ASCII block progress bar (10 segments)
+  const totalSegments = 10;
+  const filledSegments = Math.round((score / 100) * totalSegments);
+  const emptySegments = totalSegments - filledSegments;
+  const asciiBar = "█".repeat(filledSegments) + "░".repeat(emptySegments);
 
   return (
     <div
       className="ws-animate-fade-in"
       style={{
-        padding: "16px 0",
+        padding: "12px 0",
         borderBottom: "1px solid var(--ws-border)",
         animationDelay: `${delay}ms`,
         animationFillMode: "backwards",
+        fontFamily: "'JetBrains Mono', monospace",
       }}
     >
-      {/* Header row */}
+      {/* Metric Line */}
       <div
         style={{
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
-          marginBottom: 10,
+          fontSize: "13px",
         }}
       >
-        <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+        {/* Label & Trend */}
+        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
           <span
             style={{
-              fontSize: 14,
-              fontWeight: 500,
+              fontWeight: 700,
               color: "var(--ws-text-primary)",
-              textTransform: "capitalize",
+              textTransform: "uppercase",
+              letterSpacing: "0.02em",
             }}
           >
             {label.replace(/_/g, " ")}
           </span>
           <span
-            className={getTrendClass(trend)}
             style={{
-              fontSize: 13,
+              fontSize: "11px",
               fontWeight: 600,
-              display: "flex",
-              alignItems: "center",
-              gap: 3,
+              color: trend === "rising" ? "var(--ws-risk-critical)" : trend === "falling" ? "var(--ws-risk-moderate)" : "var(--ws-text-muted)",
             }}
           >
-            {getTrendIcon(trend)} {trend}
+            {trendLabel}
           </span>
         </div>
-        <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+
+        {/* Index Value & Bar */}
+        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
           <span
-            className="ws-badge"
+            className="ws-mono"
             style={{
-              color,
-              background: `${color}15`,
-              border: `1px solid ${color}30`,
-              fontSize: 11,
+              color: color,
+              fontSize: "13px",
+              letterSpacing: "0.05em",
             }}
           >
-            {level}
+            [{asciiBar}]
           </span>
           <span
             className="ws-mono"
-            style={{ fontSize: 20, fontWeight: 700, color }}
+            style={{
+              fontSize: "14px",
+              fontWeight: 700,
+              color: color,
+              minWidth: "35px",
+              textAlign: "right",
+            }}
           >
-            {score}
+            {score}%
           </span>
         </div>
       </div>
 
-      {/* Progress bar */}
+      {/* Telemetry Confidence Footer */}
       <div
         style={{
-          width: "100%",
-          height: 6,
-          background: "rgba(255, 255, 255, 0.06)",
-          borderRadius: 3,
-          overflow: "hidden",
-        }}
-      >
-        <div
-          style={{
-            width: barWidth,
-            height: "100%",
-            background: `linear-gradient(90deg, ${color}80, ${color})`,
-            borderRadius: 3,
-            transition: "width 1s cubic-bezier(0.4, 0, 0.2, 1)",
-            boxShadow: `0 0 8px ${color}40`,
-          }}
-        />
-      </div>
-
-      {/* Confidence */}
-      <div
-        style={{
-          fontSize: 11,
+          display: "flex",
+          justifyContent: "space-between",
+          fontSize: "10px",
           color: "var(--ws-text-muted)",
-          marginTop: 6,
-          textAlign: "right",
+          marginTop: 4,
         }}
       >
-        Confidence: {confidence}%
+        <span>STATUS: ACTIVE_MONITORING</span>
+        <span>CONFIDENCE: {confidence}%</span>
       </div>
     </div>
   );

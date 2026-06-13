@@ -506,3 +506,32 @@ func (s *Server) handleGetEntityPriceHistory(w http.ResponseWriter, r *http.Requ
 		"history":   history,
 	})
 }
+
+// ── Intelligence / Cascading Risks ───────────────────────────
+
+func (s *Server) handleListCascadingRisks(w http.ResponseWriter, r *http.Request) {
+	limitStr := r.URL.Query().Get("limit")
+	limit := 20
+	if limitStr != "" {
+		if l, err := strconv.Atoi(limitStr); err == nil && l > 0 {
+			limit = l
+		}
+	}
+
+	risks, err := s.DB.ListCascadingRisks(r.Context(), limit)
+	if err != nil {
+		writeJSON(w, http.StatusInternalServerError, map[string]string{"error": "listing cascading risks: " + err.Error()})
+		return
+	}
+
+	if risks == nil {
+		risks = []models.CascadingRisk{}
+	}
+
+	writeJSON(w, http.StatusOK, map[string]any{
+		"data":  risks,
+		"total": len(risks),
+		"limit": limit,
+	})
+}
+

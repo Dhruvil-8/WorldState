@@ -4,6 +4,7 @@ import (
 	"context"
 	"encoding/json"
 	"log"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/nats-io/nats.go"
@@ -37,35 +38,43 @@ func StartConsumers(ctx context.Context, natsClient *NATSClient, db *database.Po
 					log.Printf("[nats-consumer] error checking similarity: %v", err)
 				}
 				if matchedID != uuid.Nil {
-					log.Printf("[nats-consumer] event clustered: merging '%s' into existing event ID %s", evt.Title, matchedID)
-
-					// Link contributing documents to the existing event
-					for _, docID := range evt.DocumentIDs {
-						if err := db.LinkEventToDocument(dbCtx, matchedID, docID); err != nil {
-							log.Printf("[nats-consumer] error linking doc to existing event: %v", err)
-						}
-					}
-
-					// Update existing event metrics
-					updateQuery := `
-						UPDATE events
-						SET severity = (severity * source_count + $2) / (source_count + 1),
-						    confidence = (confidence * source_count + $3) / (source_count + 1),
-						    source_count = source_count + 1,
-						    last_updated_at = NOW()
-						WHERE id = $1
-					`
-					_, err = db.Pool.Exec(dbCtx, updateQuery, matchedID, evt.Severity, evt.Confidence)
+					log.Printf("[nats-consumer] event collision detected: publishing collision message for LLM consensus resolution")
+					existingEvt, err := db.GetEvent(dbCtx, matchedID)
 					if err != nil {
-						log.Printf("[nats-consumer] error updating clustered event: %v", err)
+						log.Printf("[nats-consumer] error fetching existing event: %v", err)
+						msg.Nak()
+						return
 					}
 
-					// Refresh index in Meilisearch
-					updatedEvt, err := db.GetEvent(dbCtx, matchedID)
-					if err == nil {
-						if err := meili.AddEvent(updatedEvt); err != nil {
-							log.Printf("[nats-consumer] error updating clustered event in meilisearch: %v", err)
-						}
+					docIDs := make([]string, len(evt.DocumentIDs))
+					for i, id := range evt.DocumentIDs {
+						docIDs[i] = id.String()
+					}
+
+					payload := models.EventCollisionPayload{
+						ExistingEventID:     existingEvt.ID,
+						ExistingTitle:       existingEvt.Title,
+						ExistingDescription: existingEvt.Description,
+						ExistingSeverity:    existingEvt.Severity,
+						ExistingConfidence:  existingEvt.Confidence,
+						NewTitle:            evt.Title,
+						NewDescription:      evt.Description,
+						NewSeverity:         evt.Severity,
+						NewConfidence:       evt.Confidence,
+						DocumentIDs:         docIDs,
+					}
+
+					payloadBytes, err := json.Marshal(payload)
+					if err != nil {
+						log.Printf("[nats-consumer] error marshaling collision payload: %v", err)
+						msg.Nak()
+						return
+					}
+
+					if err := natsClient.Publish(SubjectEventCollision, payloadBytes); err != nil {
+						log.Printf("[nats-consumer] error publishing collision message: %v", err)
+						msg.Nak()
+						return
 					}
 
 					msg.Ack()
@@ -90,6 +99,99 @@ func StartConsumers(ctx context.Context, natsClient *NATSClient, db *database.Po
 		},
 		nats.ManualAck(),
 		nats.Durable("ws-backend-event-durable"),
+	)
+	if err != nil {
+		return err
+	}
+
+	// ── Event Resolved (Consensus) Consumer ───────────────────
+	_, err = js.QueueSubscribe(
+		SubjectEventResolved,
+		"ws-backend-event-resolved-consumer",
+		func(msg *nats.Msg) {
+			var res models.ConsensusEventResponse
+			if err := json.Unmarshal(msg.Data, &res); err != nil {
+				log.Printf("[nats-consumer] error unmarshaling resolved event: %v", err)
+				msg.Nak()
+				return
+			}
+
+			dbCtx := context.Background()
+
+			// Fetch existing event
+			existingEvt, err := db.GetEvent(dbCtx, res.ExistingEventID)
+			if err != nil {
+				log.Printf("[nats-consumer] error fetching existing event to resolve: %v", err)
+				msg.Nak()
+				return
+			}
+
+			// Update fields
+			existingEvt.Title = res.ResolvedTitle
+			existingEvt.Description = res.ResolvedDescription
+			existingEvt.Severity = res.ResolvedSeverity
+			existingEvt.Confidence = res.ResolvedConfidence
+			existingEvt.SourceCount++
+
+			// Append timeline entry to metadata
+			if existingEvt.Metadata == nil {
+				existingEvt.Metadata = make(map[string]any)
+			}
+			var timeline []any
+			if rawTimeline, ok := existingEvt.Metadata["timeline"]; ok {
+				if tList, ok := rawTimeline.([]any); ok {
+					timeline = tList
+				}
+			}
+			newEntry := map[string]any{
+				"timestamp": time.Now().UTC().Format(time.RFC3339),
+				"update":    res.TimelineEntry,
+			}
+			timeline = append(timeline, newEntry)
+			existingEvt.Metadata["timeline"] = timeline
+
+			// Save updates to database
+			updateQuery := `
+				UPDATE events
+				SET title = $2,
+					description = $3,
+					severity = $4,
+					confidence = $5,
+					source_count = source_count + 1,
+					metadata = $6,
+					last_updated_at = NOW()
+				WHERE id = $1
+			`
+			_, err = db.Pool.Exec(dbCtx, updateQuery,
+				existingEvt.ID, existingEvt.Title, existingEvt.Description,
+				existingEvt.Severity, existingEvt.Confidence, existingEvt.Metadata,
+			)
+			if err != nil {
+				log.Printf("[nats-consumer] error updating resolved event: %v", err)
+				msg.Nak()
+				return
+			}
+
+			// Link new documents
+			for _, docStr := range res.DocumentIDs {
+				docID, err := uuid.Parse(docStr)
+				if err == nil {
+					if err := db.LinkEventToDocument(dbCtx, existingEvt.ID, docID); err != nil {
+						log.Printf("[nats-consumer] error linking resolved doc: %v", err)
+					}
+				}
+			}
+
+			// Refresh Meilisearch
+			if err := meili.AddEvent(existingEvt); err != nil {
+				log.Printf("[nats-consumer] error updating meilisearch for resolved event: %v", err)
+			}
+
+			msg.Ack()
+			log.Printf("[nats-consumer] consensus resolution applied to event: %s", existingEvt.Title)
+		},
+		nats.ManualAck(),
+		nats.Durable("ws-backend-resolved-durable"),
 	)
 	if err != nil {
 		return err

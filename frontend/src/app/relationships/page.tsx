@@ -391,7 +391,7 @@ export default function RelationshipsPage() {
 
   return (
     <div>
-      <Header />
+      <Header title="Semantic Relationship Topology" subtitle="Dynamic Node-Link Dependency Visualizations & Chokepoint Metrics" />
       <div style={{ padding: "24px 32px", display: "flex", flexDirection: "column", gap: "24px" }}>
         
         {/* Controls Panel */}

@@ -39,7 +39,7 @@ const fallbackEvents: WorldEvent[] = [
   {
     id: "event_1",
     event_type: "sanction",
-    title: "New trade sanctions announced between major economies",
+    title: "Coordinated technology export controls enacted between western states",
     severity: 8.2,
     confidence: 0.88,
     source_count: 12,
@@ -51,7 +51,7 @@ const fallbackEvents: WorldEvent[] = [
   {
     id: "event_2",
     event_type: "cyber_attack",
-    title: "Critical infrastructure targeted in coordinated cyber operation",
+    title: "Critical port logistics network offline following coordinated intrusion",
     severity: 7.8,
     confidence: 0.72,
     source_count: 5,
@@ -63,7 +63,7 @@ const fallbackEvents: WorldEvent[] = [
   {
     id: "event_3",
     event_type: "interest_rate_change",
-    title: "Central bank holds rates steady amid inflation concerns",
+    title: "Central bank maintains high base rate amid rising commodity indexes",
     severity: 5.5,
     confidence: 0.95,
     source_count: 8,
@@ -75,31 +75,31 @@ const fallbackEvents: WorldEvent[] = [
 ];
 
 const fallbackSignals: IntelligenceSnapshot["emerging_signals"] = [
-  { signal: "Cyber risk volatility increasing across multiple regions", confidence: 68 },
-  { signal: "New diplomatic channels opening in contested territories", confidence: 55 },
-  { signal: "Agricultural output projections declining in key producers", confidence: 62 },
-  { signal: "Critical mineral supply diversification accelerating", confidence: 71 },
+  { signal: "Cyber threat profile volatility rising across maritime transit zones", confidence: 68 },
+  { signal: "Non-standard diplomatic coordination monitored in eastern trade channels", confidence: 55 },
+  { signal: "Agricultural yield expectations reduced in strategic grain corridors", confidence: 62 },
+  { signal: "Primary mineral supply chain redundancy initiatives accelerated", confidence: 71 },
 ];
 
 function getSeverityColor(severity: number): string {
-  if (severity >= 8) return "#ef4444";
-  if (severity >= 6) return "#f97316";
-  if (severity >= 4) return "#eab308";
-  return "#22c55e";
+  if (severity >= 8) return "var(--ws-risk-critical)";
+  if (severity >= 6) return "var(--ws-risk-high)";
+  if (severity >= 4) return "var(--ws-risk-elevated)";
+  return "var(--ws-risk-moderate)";
 }
 
-function getCategoryIcon(category: string): string {
-  const icons: Record<string, string> = {
-    geopolitical: "G",
-    cyber: "C",
-    economic: "E",
-    supply_chain: "S",
-    trade: "T",
-    commodity: "M",
-    environment: "N",
-    other: "*",
+function getCategoryLabel(category: string): string {
+  const labels: Record<string, string> = {
+    geopolitical: "GEOPOL",
+    cyber: "CYBER",
+    economic: "ECON",
+    supply_chain: "SUPPLY",
+    trade: "TRADE",
+    commodity: "COMMOD",
+    environment: "ENV",
+    other: "OTHER",
   };
-  return icons[category] || "*";
+  return labels[category] || "MISC";
 }
 
 function formatRelativeTime(value: string): string {
@@ -114,11 +114,6 @@ function formatRelativeTime(value: string): string {
 
   const diffDays = Math.round(diffHours / 24);
   return `${diffDays}d ago`;
-}
-
-function formatConfidence(confidence: number): string {
-  const percent = confidence <= 1 ? confidence * 100 : confidence;
-  return `${Math.round(percent)}%`;
 }
 
 export default function DashboardPage() {
@@ -176,31 +171,35 @@ export default function DashboardPage() {
 
   return (
     <div>
-      <Header />
+      <Header
+        title="Operations Command Center"
+        subtitle="Unified Telemetry Overview & Threat Registry Feed"
+      />
 
-      <div style={{ padding: "24px 32px" }}>
+      <div style={{ padding: "20px 24px" }} className="bg-terminal-grid min-h-[calc(100vh-69px)]">
         {usingFallback && (
           <div
             style={{
               marginBottom: 16,
-              padding: "10px 12px",
-              borderRadius: 8,
-              color: "var(--ws-text-secondary)",
-              background: "rgba(234, 179, 8, 0.08)",
-              border: "1px solid rgba(234, 179, 8, 0.18)",
+              padding: "10px 14px",
+              color: "var(--ws-risk-elevated)",
+              background: "rgba(234, 179, 8, 0.04)",
+              border: "1px solid rgba(234, 179, 8, 0.2)",
               fontSize: 12,
+              fontFamily: "'JetBrains Mono', monospace",
             }}
           >
-            Live API unavailable. Showing local baseline intelligence data.
+            [OFFLINE_NOTICE]: LIVE_DB_API_UNAVAILABLE // RENDERING_STABLE_BASELINE_REGISTRY_DATA
           </div>
         )}
 
+        {/* Top Split: Global Stability Telemetry & Risk Index */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "340px 1fr",
-            gap: 24,
-            marginBottom: 24,
+            gridTemplateColumns: "350px 1fr",
+            gap: 20,
+            marginBottom: 20,
           }}
         >
           <WorldStateCard
@@ -208,29 +207,38 @@ export default function DashboardPage() {
             confidence={worldState.confidence}
           />
 
-          <div className="ws-card" style={{ padding: "24px 28px" }}>
+          <div className="ws-card">
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                marginBottom: 8,
+                marginBottom: 14,
+                borderBottom: "1px dashed var(--ws-border)",
+                paddingBottom: "8px",
               }}
             >
-              <h2 style={{ fontSize: 16, fontWeight: 700 }}>
-                Risk Matrix
+              <h2
+                style={{
+                  fontSize: 12,
+                  fontWeight: 800,
+                  fontFamily: "'JetBrains Mono', monospace",
+                  color: "var(--ws-text-muted)",
+                }}
+              >
+                // SYSTEM_RISK_SPECTRUM_INDEX
               </h2>
               <span
                 style={{
-                  fontSize: 12,
+                  fontSize: 11,
                   color: "var(--ws-text-muted)",
                   fontFamily: "'JetBrains Mono', monospace",
                 }}
               >
-                {loading ? "loading" : `${risks.length} categories`}
+                {loading ? "querying..." : `${risks.length}_METRIC_CHANNELS`}
               </span>
             </div>
-            <div style={{ maxHeight: 440, overflowY: "auto", paddingRight: 8 }}>
+            <div style={{ maxHeight: 270, overflowY: "auto", paddingRight: 4 }}>
               {risks.map((risk, i) => (
                 <RiskGauge
                   key={risk.risk_type}
@@ -238,226 +246,227 @@ export default function DashboardPage() {
                   score={risk.score}
                   trend={risk.trend}
                   confidence={risk.confidence}
-                  delay={i * 60}
+                  delay={i * 30}
                 />
               ))}
             </div>
           </div>
         </div>
 
+        {/* Bottom Split: Critical Threat Log & Ingestion Signals */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "1fr 380px",
-            gap: 24,
+            gridTemplateColumns: "1fr 400px",
+            gap: 20,
           }}
         >
+          {/* Critical Events Feed */}
           <div className="ws-card">
             <div
               style={{
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                marginBottom: 20,
+                marginBottom: 16,
+                borderBottom: "1px dashed var(--ws-border)",
+                paddingBottom: "8px",
               }}
             >
-              <h2 style={{ fontSize: 16, fontWeight: 700 }}>
-                Critical Events
+              <h2
+                style={{
+                  fontSize: 12,
+                  fontWeight: 800,
+                  fontFamily: "'JetBrains Mono', monospace",
+                  color: "var(--ws-text-muted)",
+                }}
+              >
+                // CRITICAL_THREAT_REGISTRY
               </h2>
               <span
                 className="ws-badge"
                 style={{
-                  color: "#ef4444",
-                  background: "rgba(239, 68, 68, 0.1)",
-                  border: "1px solid rgba(239, 68, 68, 0.2)",
+                  color: "var(--ws-risk-critical)",
+                  background: "rgba(244, 63, 94, 0.05)",
+                  border: "1px solid rgba(244, 63, 94, 0.2)",
+                  fontSize: 10,
                 }}
               >
-                {events.length} active
+                {events.length} ACTIVE_EVENTS
               </span>
             </div>
 
-            {events.map((evt, i) => (
-              <div
-                key={evt.id}
-                className="ws-animate-slide-in"
-                style={{
-                  display: "flex",
-                  alignItems: "flex-start",
-                  gap: 14,
-                  padding: "14px 16px",
-                  borderRadius: 12,
-                  background: "rgba(255, 255, 255, 0.02)",
-                  border: "1px solid var(--ws-border)",
-                  marginBottom: 10,
-                  animationDelay: `${i * 80}ms`,
-                  animationFillMode: "backwards",
-                }}
-              >
-                <span
-                  className="ws-mono"
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+              {events.map((evt, i) => (
+                <div
+                  key={evt.id}
+                  className="ws-animate-slide-in"
                   style={{
-                    width: 24,
-                    height: 24,
-                    borderRadius: 6,
-                    display: "inline-flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    color: "var(--ws-accent)",
-                    background: "rgba(59, 130, 246, 0.1)",
-                    fontSize: 12,
-                    fontWeight: 700,
-                    flexShrink: 0,
+                    display: "flex",
+                    alignItems: "flex-start",
+                    gap: 12,
+                    padding: "12px",
+                    background: "rgba(255, 255, 255, 0.01)",
+                    border: "1px solid var(--ws-border)",
+                    animationDelay: `${i * 40}ms`,
+                    animationFillMode: "backwards",
                   }}
                 >
-                  {getCategoryIcon(evt.category)}
-                </span>
+                  {/* Category Pill */}
+                  <span
+                    className="ws-mono"
+                    style={{
+                      padding: "2px 6px",
+                      background: "rgba(255, 255, 255, 0.03)",
+                      border: "1px solid var(--ws-border)",
+                      color: "var(--ws-text-secondary)",
+                      fontSize: 10,
+                      fontWeight: 700,
+                      flexShrink: 0,
+                    }}
+                  >
+                    {getCategoryLabel(evt.category)}
+                  </span>
 
-                <div style={{ flex: 1 }}>
-                  <div
-                    style={{
-                      fontSize: 14,
-                      fontWeight: 500,
-                      marginBottom: 6,
-                      lineHeight: 1.4,
-                    }}
-                  >
-                    {evt.title}
-                  </div>
-                  <div
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      gap: 10,
-                      fontSize: 12,
-                      flexWrap: "wrap",
-                    }}
-                  >
-                    <span
-                      className="ws-badge"
+                  <div style={{ flex: 1 }}>
+                    <div
                       style={{
-                        color: "var(--ws-text-secondary)",
-                        background: "rgba(255, 255, 255, 0.04)",
-                        border: "1px solid var(--ws-border)",
-                        textTransform: "capitalize",
-                        fontSize: 11,
+                        fontSize: 13,
+                        fontWeight: 600,
+                        color: "var(--ws-text-primary)",
+                        lineHeight: 1.4,
+                        marginBottom: 4,
                       }}
                     >
-                      {evt.category.replace(/_/g, " ")}
-                    </span>
-                    <span
-                      className="ws-badge"
+                      {evt.title}
+                    </div>
+                    <div
                       style={{
-                        color: getSeverityColor(evt.severity),
-                        background: `${getSeverityColor(evt.severity)}12`,
-                        border: `1px solid ${getSeverityColor(evt.severity)}25`,
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 12,
                         fontSize: 11,
+                        fontFamily: "'JetBrains Mono', monospace",
+                        color: "var(--ws-text-muted)",
                       }}
                     >
-                      SEV {evt.severity}
-                    </span>
-                    <span style={{ color: "var(--ws-text-muted)" }}>
-                      {formatRelativeTime(evt.first_seen_at)}
-                    </span>
+                      <span
+                        style={{
+                          color: getSeverityColor(evt.severity),
+                          fontWeight: 700,
+                        }}
+                      >
+                        SEV: {evt.severity.toFixed(1)}
+                      </span>
+                      <span>TIME: {formatRelativeTime(evt.first_seen_at)}</span>
+                      <span>SOURCES: {evt.source_count}</span>
+                    </div>
                   </div>
+
+                  {/* Status Pill */}
+                  <span
+                    className="ws-badge"
+                    style={{
+                      color: evt.status === "active" ? "#10b981" : "#eab308",
+                      background:
+                        evt.status === "active"
+                          ? "rgba(16, 185, 129, 0.05)"
+                          : "rgba(234, 179, 8, 0.05)",
+                      border: `1px solid ${
+                        evt.status === "active"
+                          ? "rgba(16, 185, 129, 0.2)"
+                          : "rgba(234, 179, 8, 0.2)"
+                      }`,
+                      fontSize: 9,
+                    }}
+                  >
+                    {evt.status.toUpperCase()}
+                  </span>
                 </div>
-
-                <span
-                  className="ws-badge"
-                  style={{
-                    color: evt.status === "active" ? "#22c55e" : "#eab308",
-                    background:
-                      evt.status === "active"
-                        ? "rgba(34, 197, 94, 0.1)"
-                        : "rgba(234, 179, 8, 0.1)",
-                    border: `1px solid ${
-                      evt.status === "active"
-                        ? "rgba(34, 197, 94, 0.2)"
-                        : "rgba(234, 179, 8, 0.2)"
-                    }`,
-                    fontSize: 10,
-                    textTransform: "uppercase",
-                  }}
-                >
-                  {evt.status}
-                </span>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
 
+          {/* Emerging Signals panel */}
           <div className="ws-card">
-            <h2 style={{ fontSize: 16, fontWeight: 700, marginBottom: 20 }}>
-              Emerging Signals
-            </h2>
-
-            {signals.map((sig, i) => (
-              <div
-                key={`${sig.signal}-${i}`}
-                className="ws-animate-fade-in"
+            <div
+              style={{
+                marginBottom: 16,
+                borderBottom: "1px dashed var(--ws-border)",
+                paddingBottom: "8px",
+              }}
+            >
+              <h2
                 style={{
-                  padding: "14px 0",
-                  borderBottom:
-                    i < signals.length - 1
-                      ? "1px solid var(--ws-border)"
-                      : "none",
-                  animationDelay: `${i * 100}ms`,
-                  animationFillMode: "backwards",
+                  fontSize: 12,
+                  fontWeight: 800,
+                  fontFamily: "'JetBrains Mono', monospace",
+                  color: "var(--ws-text-muted)",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "flex-start", gap: 10 }}>
+                // RAW_INGESTION_TICKER
+              </h2>
+            </div>
+
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              {signals.map((sig, i) => (
+                <div
+                  key={`${sig.signal}-${i}`}
+                  className="ws-animate-fade-in"
+                  style={{
+                    paddingBottom: 10,
+                    borderBottom: i < signals.length - 1 ? "1px solid var(--ws-border)" : "none",
+                    animationDelay: `${i * 50}ms`,
+                    animationFillMode: "backwards",
+                    display: "flex",
+                    gap: 10,
+                    alignItems: "flex-start",
+                  }}
+                >
                   <div
                     style={{
-                      width: 8,
-                      height: 8,
-                      borderRadius: "50%",
-                      marginTop: 5,
-                      background:
-                        sig.confidence > 65
-                          ? "#f97316"
-                          : sig.confidence > 55
-                            ? "#eab308"
-                            : "#94a3b8",
-                      boxShadow:
-                        sig.confidence > 65
-                          ? "0 0 8px rgba(249, 115, 22, 0.4)"
-                          : "none",
+                      width: 4,
+                      height: 4,
+                      marginTop: 6,
+                      background: sig.confidence > 65 ? "var(--ws-risk-high)" : "var(--ws-text-muted)",
                       flexShrink: 0,
                     }}
                   />
                   <div>
                     <div
                       style={{
-                        fontSize: 13,
-                        lineHeight: 1.5,
-                        marginBottom: 4,
+                        fontSize: 12,
+                        color: "var(--ws-text-secondary)",
+                        lineHeight: 1.4,
+                        marginBottom: 3,
                       }}
                     >
                       {sig.signal}
                     </div>
                     <div
                       className="ws-mono"
-                      style={{ fontSize: 11, color: "var(--ws-text-muted)" }}
+                      style={{ fontSize: 10, color: "var(--ws-text-muted)" }}
                     >
-                      Confidence: {formatConfidence(sig.confidence)}
+                      CONFIDENCE: {sig.confidence}%
                     </div>
                   </div>
                 </div>
-              </div>
-            ))}
+              ))}
+            </div>
 
             <div
               style={{
-                marginTop: 16,
-                padding: "12px",
-                borderRadius: 8,
-                background: "rgba(59, 130, 246, 0.05)",
-                border: "1px solid rgba(59, 130, 246, 0.1)",
-                fontSize: 12,
+                marginTop: 14,
+                padding: 10,
+                background: "rgba(255, 255, 255, 0.01)",
+                border: "1px solid var(--ws-border)",
+                fontSize: 11,
+                fontFamily: "'JetBrains Mono', monospace",
                 color: "var(--ws-text-muted)",
-                lineHeight: 1.5,
+                lineHeight: 1.4,
               }}
             >
-              Signals are pre-intelligence indicators detected before they
-              develop into confirmed events.
+              // NOTE: INGESTION_SIGNALS ARE PRE-EXTRACTED STATE INDICATORS COLLECTED PRIOR TO THE FORMATION OF VERIFIED TIMELINES.
             </div>
           </div>
         </div>

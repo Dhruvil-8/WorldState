@@ -107,7 +107,7 @@ export default function EntitiesPage() {
 
   return (
     <div>
-      <Header />
+      <Header title="Entity Knowledge Registry" subtitle="Planetary Actors, Port Infrastructures, and Commodity Indexes" />
       <div style={{ padding: "24px 32px", display: "flex", flexDirection: "column", gap: "24px" }}>
         
         {/* Top Controls */}

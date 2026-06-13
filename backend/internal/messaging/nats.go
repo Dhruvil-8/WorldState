@@ -19,6 +19,8 @@ const (
 	SubjectRiskUpdated           = "worldstate.risk.updated"
 	SubjectWorldStateUpdate      = "worldstate.worldstate.updated"
 	SubjectIntelGenerated        = "worldstate.intelligence.generated"
+	SubjectEventCollision        = "worldstate.event.collision"
+	SubjectEventResolved         = "worldstate.event.resolved"
 )
 
 // NATSClient wraps the NATS connection.

@@ -55,7 +55,7 @@ export default function RisksPage() {
 
   return (
     <div>
-      <Header />
+      <Header title="Risk Index Registry" subtitle="Planetary Sector Disruption Indexes & Risk Vector Ledger" />
       <div style={{ padding: "24px 32px", display: "flex", flexDirection: "column", gap: "24px" }}>
         
         {/* Page summary intro */}

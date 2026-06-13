@@ -161,7 +161,7 @@ export default function EventsPage() {
 
   return (
     <div>
-      <Header />
+      <Header title="Critical Threat Registry" subtitle="Operational News Events Feed & Threat Timelines" />
       <div style={{ padding: "24px 32px", display: "flex", flexDirection: "column", gap: "24px" }}>
         
         {/* Top Controls */}
@@ -196,7 +196,7 @@ export default function EventsPage() {
 
           {/* Search bar */}
           <div style={{ position: "relative", width: "100%", maxWidth: "320px" }}>
-            <span style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", opacity: 0.4 }}>🔍</span>
+            <span style={{ position: "absolute", left: "14px", top: "50%", transform: "translateY(-50%)", opacity: 0.4, fontFamily: "monospace", fontSize: "10px" }}>[SRCH]</span>
             <input
               type="text"
               placeholder="Search events, sectors..."
@@ -204,7 +204,7 @@ export default function EventsPage() {
               onChange={(e) => setSearchQuery(e.target.value)}
               style={{
                 width: "100%",
-                padding: "10px 14px 10px 40px",
+                padding: "10px 14px 10px 55px",
                 borderRadius: "12px",
                 border: "1px solid var(--ws-border)",
                 background: "rgba(255, 255, 255, 0.02)",
@@ -238,7 +238,7 @@ export default function EventsPage() {
               </div>
             ) : filteredEvents.length === 0 ? (
               <div style={{ padding: "80px 0", textAlign: "center", color: "var(--ws-text-muted)" }}>
-                <span style={{ fontSize: "32px", display: "block", marginBottom: "12px" }}>🔍</span>
+                <span style={{ fontSize: "12px", display: "block", marginBottom: "12px", fontFamily: "monospace" }}>[NO_RECORDS_FOUND]</span>
                 <div>No events matched your filters. Try adjusting search queries.</div>
               </div>
             ) : (

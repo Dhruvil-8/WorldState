@@ -225,7 +225,7 @@ export default function MarketsPage() {
 
   return (
     <div>
-      <Header />
+      <Header title="Market Impact Correlation Ledger" subtitle="Cross-Asset Volatility Analysis & Threat Alignment Indicators" />
       <div style={{ padding: "24px 32px", display: "flex", flexDirection: "column", gap: "24px" }}>
         
         {/* Core Correlation Matrix Overview */}

@@ -1,22 +1,46 @@
 "use client";
 
-import React from "react";
+import React, { useEffect, useState } from "react";
 
-export default function Header() {
-  const now = new Date();
-  const timeStr = now.toLocaleTimeString("en-US", {
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-    timeZone: "UTC",
-  });
-  const dateStr = now.toLocaleDateString("en-US", {
-    weekday: "long",
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-    timeZone: "UTC",
-  });
+interface HeaderProps {
+  title?: string;
+  subtitle?: string;
+}
+
+export default function Header({
+  title = "Global Intelligence Terminal",
+  subtitle = "OTS Systems Monitoring & Threat Telemetry",
+}: HeaderProps) {
+  const [timeStr, setTimeStr] = useState("");
+  const [dateStr, setDateStr] = useState("");
+
+  useEffect(() => {
+    const updateTime = () => {
+      const now = new Date();
+      setTimeStr(
+        now.toLocaleTimeString("en-US", {
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hour12: false,
+          timeZone: "UTC",
+        })
+      );
+      setDateStr(
+        now.toLocaleDateString("en-US", {
+          weekday: "short",
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+          timeZone: "UTC",
+        })
+      );
+    };
+
+    updateTime();
+    const interval = setInterval(updateTime, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   return (
     <header
@@ -25,90 +49,99 @@ export default function Header() {
         display: "flex",
         alignItems: "center",
         justifyContent: "space-between",
-        padding: "16px 32px",
+        padding: "14px 28px",
         background: "var(--ws-bg-primary)",
         borderBottom: "1px solid var(--ws-border)",
-        backdropFilter: "blur(12px)",
         position: "sticky",
         top: 0,
         zIndex: 40,
       }}
     >
-      {/* Left — Page title */}
+      {/* Left — Terminal Title */}
       <div>
         <h1
           style={{
-            fontSize: 22,
-            fontWeight: 700,
+            fontSize: "15px",
+            fontWeight: 800,
             color: "var(--ws-text-primary)",
-            letterSpacing: "-0.02em",
+            letterSpacing: "0.08em",
+            textTransform: "uppercase",
+            fontFamily: "'JetBrains Mono', monospace",
           }}
         >
-          Global Intelligence Dashboard
+          // {title}
         </h1>
         <p
           style={{
-            fontSize: 13,
-            color: "var(--ws-text-muted)",
+            fontSize: "11px",
+            color: "var(--ws-text-secondary)",
+            fontFamily: "'JetBrains Mono', monospace",
             marginTop: 2,
+            opacity: 0.8,
           }}
         >
-          Global State Overview · Real-time Monitoring
+          {subtitle}
         </p>
       </div>
 
-      {/* Right — Time + Status */}
-      <div style={{ display: "flex", alignItems: "center", gap: 24 }}>
-        {/* Live indicator */}
+      {/* Right — Live Telemetry & UTC Time */}
+      <div style={{ display: "flex", alignItems: "center", gap: 20 }}>
+        {/* Status Pill */}
         <div
           style={{
             display: "flex",
             alignItems: "center",
-            gap: 8,
-            padding: "6px 14px",
-            borderRadius: 8,
-            background: "rgba(34, 197, 94, 0.08)",
-            border: "1px solid rgba(34, 197, 94, 0.15)",
+            gap: 6,
+            padding: "4px 10px",
+            background: "rgba(16, 185, 129, 0.04)",
+            border: "1px solid rgba(16, 185, 129, 0.15)",
           }}
         >
           <div
             style={{
-              width: 7,
-              height: 7,
+              width: 5,
+              height: 5,
               borderRadius: "50%",
-              background: "#22c55e",
-              boxShadow: "0 0 8px rgba(34, 197, 94, 0.5)",
-              animation: "ws-pulse-glow 2s infinite",
+              background: "#10b981",
+              boxShadow: "0 0 6px rgba(16, 185, 129, 0.6)",
+              animation: "ws-pulse-glow 1.5s infinite",
             }}
           />
           <span
             style={{
-              fontSize: 12,
-              fontWeight: 600,
-              color: "#22c55e",
+              fontSize: "10px",
+              fontWeight: 700,
+              color: "#10b981",
+              fontFamily: "'JetBrains Mono', monospace",
               textTransform: "uppercase",
-              letterSpacing: "0.06em",
+              letterSpacing: "0.05em",
             }}
           >
-            Live
+            SYS.RUNNING
           </span>
         </div>
 
-        {/* Time */}
+        {/* Dynamic UTC Clock */}
         <div style={{ textAlign: "right" }}>
           <div
+            className="ws-mono"
             style={{
-              fontSize: 20,
+              fontSize: "14px",
               fontWeight: 700,
-              fontFamily: "'JetBrains Mono', monospace",
               color: "var(--ws-text-primary)",
-              letterSpacing: "0.02em",
+              letterSpacing: "0.05em",
             }}
           >
-            {timeStr} UTC
+            {timeStr || "00:00:00"} UTC
           </div>
-          <div style={{ fontSize: 12, color: "var(--ws-text-muted)" }}>
-            {dateStr}
+          <div
+            style={{
+              fontSize: "10px",
+              color: "var(--ws-text-muted)",
+              fontFamily: "'JetBrains Mono', monospace",
+            }}
+          >
+            {dateStr || "---"}
           </div>
         </div>
       </div>

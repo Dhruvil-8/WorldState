@@ -1,52 +1,52 @@
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap");
 @import "tailwindcss";
 
 /* ============================================================
-   WorldState — Design System
-   Premium dark intelligence dashboard
+   WorldState — Geopolitical Intelligence Operating System (GIOS)
+   True Black & Slate Terminal Aesthetic
    ============================================================ */
 
 :root {
-  /* Core palette */
-  --ws-bg-primary: #0a0e17;
-  --ws-bg-secondary: #111827;
-  --ws-bg-card: #151d2e;
-  --ws-bg-card-hover: #1a2540;
-  --ws-bg-elevated: #1e293b;
+  /* Pure Black Core Palette */
+  --ws-bg-primary: #000000;
+  --ws-bg-secondary: #08080a;
+  --ws-bg-card: #0c0c0e;
+  --ws-bg-card-hover: #121214;
+  --ws-bg-elevated: #18181b;
 
-  /* Borders */
-  --ws-border: rgba(255, 255, 255, 0.06);
-  --ws-border-hover: rgba(255, 255, 255, 0.12);
+  /* Muted Slate Borders */
+  --ws-border: rgba(255, 255, 255, 0.05);
+  --ws-border-hover: rgba(255, 255, 255, 0.1);
 
-  /* Text */
-  --ws-text-primary: #f1f5f9;
-  --ws-text-secondary: #94a3b8;
-  --ws-text-muted: #64748b;
+  /* High-Contrast Neutral Text */
+  --ws-text-primary: #fafafa;
+  --ws-text-secondary: #a1a1aa;
+  --ws-text-muted: #52525b;
 
-  /* Accent colors */
-  --ws-accent: #3b82f6;
-  --ws-accent-glow: rgba(59, 130, 246, 0.15);
+  /* Terminal Accents (Pure/Neon Indicators, Muted Backdrops) */
+  --ws-accent: #ffffff;
+  --ws-accent-glow: rgba(255, 255, 255, 0.03);
+  --ws-accent-active: #3b82f6;
 
-  /* Risk colors */
-  --ws-risk-critical: #ef4444;
+  /* Telemetry Status Colors */
+  --ws-risk-critical: #f43f5e;
   --ws-risk-high: #f97316;
   --ws-risk-elevated: #eab308;
-  --ws-risk-moderate: #22c55e;
+  --ws-risk-moderate: #10b981;
   --ws-risk-low: #06b6d4;
 
-  /* Trend colors */
-  --ws-trend-rising: #ef4444;
-  --ws-trend-falling: #22c55e;
-  --ws-trend-stable: #94a3b8;
+  /* Trend Vectors */
+  --ws-trend-rising: #f43f5e;
+  --ws-trend-falling: #10b981;
+  --ws-trend-stable: #71717a;
   --ws-trend-volatile: #a855f7;
 
   /* Glassmorphism */
-  --ws-glass-bg: rgba(15, 23, 42, 0.7);
-  --ws-glass-border: rgba(255, 255, 255, 0.08);
+  --ws-glass-bg: rgba(8, 8, 10, 0.7);
+  --ws-glass-border: rgba(255, 255, 255, 0.05);
 
-  /* Sidebar */
-  --ws-sidebar-width: 260px;
-  --ws-sidebar-collapsed: 72px;
+  /* Sidebar Metrics */
+  --ws-sidebar-width: 250px;
 }
 
 * {
@@ -63,108 +63,98 @@ body {
   color: var(--ws-text-primary);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
-/* ── Scrollbar ──────────────────────────────────────────────── */
+/* ── Scrollbars ─────────────────────────────────────────────── */
 
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--ws-bg-primary);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.1);
-  border-radius: 3px;
+  background: var(--ws-bg-elevated);
+  border-radius: 0px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--ws-text-muted);
 }
 
-/* ── Card Glass ─────────────────────────────────────────────── */
+/* ── Terminal Grid Backdrop ─────────────────────────────────── */
+
+.bg-terminal-grid {
+  background-image: 
+    linear-gradient(rgba(255, 255, 255, 0.015) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.015) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+
+/* ── High-Density Console Card ────────────────────────────── */
 
 .ws-card {
   background: var(--ws-bg-card);
   border: 1px solid var(--ws-border);
-  border-radius: 16px;
-  padding: 24px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  border-radius: 0px; /* Sharp corners for terminal style */
+  padding: 20px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
-  overflow: hidden;
-}
-
-.ws-card::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 1px;
-  background: linear-gradient(
-    90deg,
-    transparent,
-    rgba(255, 255, 255, 0.08),
-    transparent
-  );
 }
 
 .ws-card:hover {
   background: var(--ws-bg-card-hover);
   border-color: var(--ws-border-hover);
-  transform: translateY(-1px);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.8);
 }
 
-/* ── Risk Badge ─────────────────────────────────────────────── */
+/* ── Telemetry Indicators ──────────────────────────────────── */
+
+.ws-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px 6px;
+  border-radius: 0px;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
 
 .ws-risk-critical {
   color: var(--ws-risk-critical);
-  background: rgba(239, 68, 68, 0.1);
-  border: 1px solid rgba(239, 68, 68, 0.2);
+  background: rgba(244, 63, 94, 0.06);
+  border: 1px solid rgba(244, 63, 94, 0.2);
 }
 
 .ws-risk-high {
   color: var(--ws-risk-high);
-  background: rgba(249, 115, 22, 0.1);
+  background: rgba(249, 115, 22, 0.06);
   border: 1px solid rgba(249, 115, 22, 0.2);
 }
 
 .ws-risk-elevated {
   color: var(--ws-risk-elevated);
-  background: rgba(234, 179, 8, 0.1);
+  background: rgba(234, 179, 8, 0.06);
   border: 1px solid rgba(234, 179, 8, 0.2);
 }
 
 .ws-risk-moderate {
   color: var(--ws-risk-moderate);
-  background: rgba(34, 197, 94, 0.1);
-  border: 1px solid rgba(34, 197, 94, 0.2);
+  background: rgba(16, 185, 129, 0.06);
+  border: 1px solid rgba(16, 185, 129, 0.2);
 }
 
 .ws-risk-low {
   color: var(--ws-risk-low);
-  background: rgba(6, 182, 212, 0.1);
+  background: rgba(6, 182, 212, 0.06);
   border: 1px solid rgba(6, 182, 212, 0.2);
 }
-
-/* ── Severity Badge ─────────────────────────────────────────── */
-
-.ws-badge {
-  display: inline-flex;
-  align-items: center;
-  padding: 4px 10px;
-  border-radius: 6px;
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: 0.02em;
-  text-transform: uppercase;
-}
-
-/* ── Trend Indicator ────────────────────────────────────────── */
 
 .ws-trend-rising {
   color: var(--ws-trend-rising);
@@ -182,39 +172,38 @@ body {
   color: var(--ws-trend-volatile);
 }
 
-/* ── Glow Effects ───────────────────────────────────────────── */
-
-.ws-glow-blue {
-  box-shadow: 0 0 20px rgba(59, 130, 246, 0.15),
-    0 0 60px rgba(59, 130, 246, 0.05);
-}
-
-.ws-glow-red {
-  box-shadow: 0 0 20px rgba(239, 68, 68, 0.15),
-    0 0 60px rgba(239, 68, 68, 0.05);
-}
-
-.ws-glow-green {
-  box-shadow: 0 0 20px rgba(34, 197, 94, 0.15),
-    0 0 60px rgba(34, 197, 94, 0.05);
-}
-
 /* ── Animations ─────────────────────────────────────────────── */
 
 @keyframes ws-pulse-glow {
-  0%,
-  100% {
-    opacity: 0.4;
+  0%, 100% {
+    opacity: 0.5;
   }
   50% {
     opacity: 1;
   }
 }
 
+@keyframes ws-grid-scan {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 0 24px;
+  }
+}
+
+.ws-animate-fade-in {
+  animation: ws-fade-in 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.ws-animate-slide-in {
+  animation: ws-slide-in-right 0.25s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
 @keyframes ws-fade-in {
   from {
     opacity: 0;
-    transform: translateY(8px);
+    transform: translateY(4px);
   }
   to {
     opacity: 1;
@@ -225,7 +214,7 @@ body {
 @keyframes ws-slide-in-right {
   from {
     opacity: 0;
-    transform: translateX(16px);
+    transform: translateX(8px);
   }
   to {
     opacity: 1;
@@ -233,37 +222,8 @@ body {
   }
 }
 
-.ws-animate-fade-in {
-  animation: ws-fade-in 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-
-.ws-animate-slide-in {
-  animation: ws-slide-in-right 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-}
-
-/* ── Stability Ring ─────────────────────────────────────────── */
-
-.ws-stability-ring {
-  position: relative;
-  width: 180px;
-  height: 180px;
-}
-
-.ws-stability-ring svg {
-  transform: rotate(-90deg);
-}
-
-.ws-stability-value {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-
-/* ── Monospace ──────────────────────────────────────────────── */
-
+/* Monospace telemetry styles */
 .ws-mono {
-  font-family: "JetBrains Mono", "Fira Code", monospace;
+  font-family: "JetBrains Mono", monospace;
+  font-variant-numeric: tabular-nums;
 }

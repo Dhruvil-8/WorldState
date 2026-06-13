@@ -160,3 +160,41 @@ type AssetPriceHistory struct {
 	ChangePercent float64   `json:"change_percent"`
 	Timestamp     time.Time `json:"timestamp"`
 }
+
+// CascadingRisk represents a deep graph walk analysis scenario.
+type CascadingRisk struct {
+	ID                uuid.UUID `json:"id"`
+	Title             string    `json:"title"`
+	Scenario          string    `json:"scenario"`
+	Severity          float64   `json:"severity"`
+	Confidence        float64   `json:"confidence"`
+	ImpactedEntityIDs []uuid.UUID `json:"impacted_entity_ids"`
+	TriggerEventIDs   []uuid.UUID `json:"trigger_event_ids"`
+	CreatedAt         time.Time `json:"created_at"`
+}
+
+// EventCollisionPayload represents payload sent to Python for LLM conflict resolution.
+type EventCollisionPayload struct {
+	ExistingEventID     uuid.UUID `json:"existing_event_id"`
+	ExistingTitle       string    `json:"existing_title"`
+	ExistingDescription string    `json:"existing_description"`
+	ExistingSeverity    float64   `json:"existing_severity"`
+	ExistingConfidence   float64   `json:"existing_confidence"`
+	NewTitle            string    `json:"new_title"`
+	NewDescription      string    `json:"new_description"`
+	NewSeverity         float64   `json:"new_severity"`
+	NewConfidence       float64   `json:"new_confidence"`
+	DocumentIDs         []string  `json:"document_ids"`
+}
+
+// ConsensusEventResponse represents resolved event data received from Python consensus agent.
+type ConsensusEventResponse struct {
+	ExistingEventID    uuid.UUID `json:"existing_event_id"`
+	ResolvedTitle      string    `json:"resolved_title"`
+	ResolvedDescription string   `json:"resolved_description"`
+	ResolvedSeverity    float64   `json:"resolved_severity"`
+	ResolvedConfidence   float64   `json:"resolved_confidence"`
+	TimelineEntry      string    `json:"timeline_entry"`
+	DocumentIDs         []string  `json:"document_ids"`
+}
+

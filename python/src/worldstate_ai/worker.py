@@ -13,10 +13,14 @@ from worldstate_ai.models import (
     EntityExtractionRequest,
     EventExtractionRequest,
     RelationshipExtractionRequest,
+    EventCollisionPayload,
 )
 from worldstate_ai.services.entity_extraction import extract_entities
 from worldstate_ai.services.event_extraction import extract_events
 from worldstate_ai.services.relationship_extraction import extract_relationships
+from worldstate_ai.services.consensus_agent import resolve_event_collision
+from worldstate_ai.services.graph_reasoning import generate_cascading_risks
+from worldstate_ai.services.gap_enricher import enrich_knowledge_gaps
 
 logging.basicConfig(
     level=logging.INFO,
@@ -61,7 +65,7 @@ async def process_document(msg):
 
         for ext_evt in event_res.events:
             event_payload = {
-                "id": None,  # Let Go backend assign UUID or keep it null
+                "id": None,
                 "event_type": ext_evt.event_type,
                 "title": ext_evt.title,
                 "description": ext_evt.description,
@@ -133,18 +137,71 @@ async def process_document(msg):
 
     except Exception as e:
         logger.error(f"Failed to process document message: {e}")
-        # Reject message so it can be retried durably
         await msg.nak()
 
 
-async def run_worker():
-    """Main worker initialization and event loop.
+async def process_collision(msg):
+    """Callback triggered on event collisions to resolve contradictions via Consensus Agent."""
+    data = msg.data.decode()
+    logger.info("Received event collision message from Go backend.")
 
-    Uses pull_subscribe to avoid deliver_group conflicts with the Go backend's
-    push consumers.  The WORLDSTATE stream is created by the Go backend
-    (with FileStorage + 7-day MaxAge), so we only wait for it here instead
-    of trying to add_stream with a different config.
-    """
+    try:
+        payload_dict = json.loads(data)
+        payload = EventCollisionPayload(**payload_dict)
+
+        logger.info(f"Resolving collision: Existing ('{payload.existing_title}') vs New ('{payload.new_title}')")
+        resolution = await resolve_event_collision(payload)
+
+        # Publish resolution back to Go backend
+        js = msg._client.jetstream()
+        res_payload = {
+            "existing_event_id": str(payload.existing_event_id),
+            "resolved_title": resolution.resolved_title,
+            "resolved_description": resolution.resolved_description,
+            "resolved_severity": resolution.resolved_severity,
+            "resolved_confidence": resolution.resolved_confidence,
+            "timeline_entry": resolution.timeline_entry,
+            "document_ids": payload.document_ids,
+        }
+        res_json = json.dumps(res_payload).encode()
+        await js.publish("worldstate.event.resolved", res_json)
+        logger.info(f"Published resolved event consensus for ID: {payload.existing_event_id}")
+        await msg.ack()
+    except Exception as e:
+        logger.error(f"Failed to resolve event collision: {e}")
+        await msg.nak()
+
+
+async def graph_reasoning_loop():
+    """Background loop that periodically runs graph walk risk analysis (every 60 seconds)."""
+    await asyncio.sleep(15)  # Wait for startup migrations to apply
+    while True:
+        try:
+            logger.info("[graph-reasoner] Starting automated graph walk risk check...")
+            results = await generate_cascading_risks()
+            if results:
+                logger.info(f"[graph-reasoner] Successfully compiled {len(results)} cascading risk scenarios.")
+        except Exception as e:
+            logger.error(f"[graph-reasoner] Error in graph walk check: {e}")
+        await asyncio.sleep(60)
+
+
+async def gap_enricher_loop():
+    """Background loop that periodically runs knowledge gap enrichment crawls (every 120 seconds)."""
+    await asyncio.sleep(30)  # Wait for initial data population
+    while True:
+        try:
+            logger.info("[gap-enricher] Starting automated knowledge graph gap scans...")
+            enriched = await enrich_knowledge_gaps()
+            if enriched:
+                logger.info(f"[gap-enricher] Successfully enriched gaps for entities: {enriched}")
+        except Exception as e:
+            logger.error(f"[gap-enricher] Error in gap scanner: {e}")
+        await asyncio.sleep(120)
+
+
+async def run_worker():
+    """Main worker initialization and event loop."""
     logger.info("Initializing WorldState AI Processing Worker...")
     logger.info(f"Connecting to NATS: {settings.nats_url}")
 
@@ -159,8 +216,7 @@ async def run_worker():
 
         js = nc.jetstream()
 
-        # Wait for the Go backend to create the WORLDSTATE stream.
-        # Retry a few times in case the backend hasn't started yet.
+        # Wait for NATS streams to exist
         stream_ready = False
         for attempt in range(30):
             try:
@@ -176,28 +232,45 @@ async def run_worker():
             logger.error("WORLDSTATE stream not found after 60s. Is the Go backend running?")
             sys.exit(1)
 
-        # Use pull_subscribe — avoids deliver_group / queue-subscription conflicts.
-        sub = await js.pull_subscribe(
+        # Pull subscription for ingested documents
+        sub_doc = await js.pull_subscribe(
             subject="worldstate.document.ingested",
             durable="ws-ai-extraction-worker",
         )
-        logger.info("Pull-subscribed to 'worldstate.document.ingested'. Listening for events...")
+        logger.info("Pull-subscribed to 'worldstate.document.ingested'.")
+
+        # Pull subscription for event collisions
+        sub_collision = await js.pull_subscribe(
+            subject="worldstate.event.collision",
+            durable="ws-ai-collision-resolver",
+        )
+        logger.info("Pull-subscribed to 'worldstate.event.collision'. Listening for event conflicts...")
+
+        # Start autonomous background reasoning and enrichment agents
+        asyncio.create_task(graph_reasoning_loop())
+        asyncio.create_task(gap_enricher_loop())
 
         # Continuously fetch and process messages
         while True:
             try:
-                messages = await sub.fetch(batch=5, timeout=5)
-                for msg in messages:
+                # 1. Process documents
+                doc_messages = await sub_doc.fetch(batch=2, timeout=1)
+                for msg in doc_messages:
                     await process_document(msg)
-                    await asyncio.sleep(4.0)  # Gemini Free Tier (15 RPM) rate-limiting safeguard
+                    await asyncio.sleep(4.0)  # Gemini rate limiting buffer
             except asyncio.TimeoutError:
-                pass  # No messages available, loop again
-            except Exception as e:
-                if "timeout" in str(e).lower() or "fetch" in str(e).lower():
-                    pass  # nats.py may raise its own timeout variant
-                else:
-                    logger.error(f"Error fetching messages: {e}")
-                    await asyncio.sleep(1)
+                pass
+            
+            try:
+                # 2. Process collisions
+                collision_messages = await sub_collision.fetch(batch=2, timeout=1)
+                for msg in collision_messages:
+                    await process_collision(msg)
+                    await asyncio.sleep(4.0)  # Gemini rate limiting buffer
+            except asyncio.TimeoutError:
+                pass
+                
+            await asyncio.sleep(0.5)
 
     except Exception as e:
         logger.error(f"Worker startup failed: {e}")

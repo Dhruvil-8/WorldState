@@ -50,7 +50,7 @@ export default function IntelligencePage() {
 
   return (
     <div>
-      <Header />
+      <Header title="Executive Intelligence Dossier" subtitle="Planetary Threats, Strategic Vectors, and Region Watch Briefings" />
       <div style={{ padding: "24px 32px", display: "flex", flexDirection: "column", gap: "24px" }}>
         
         {loading ? (

@@ -187,8 +187,8 @@ export default function MapPage() {
   ];
 
   return (
-    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--ws-bg)" }}>
-      <Header />
+    <div style={{ minHeight: "100vh", display: "flex", flexDirection: "column", background: "var(--ws-bg-primary)" }}>
+      <Header title="Global Threat Map" subtitle="Geolocated Event Registry & Spatial Threat Analysis" />
       
       <div style={{ flex: 1, display: "flex", flexDirection: "column", padding: "24px 32px", gap: "20px" }}>
         
