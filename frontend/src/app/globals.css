@@ -1,0 +1,269 @@
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap");
+@import "tailwindcss";
+
+/* ============================================================
+   WorldState — Design System
+   Premium dark intelligence dashboard
+   ============================================================ */
+
+:root {
+  /* Core palette */
+  --ws-bg-primary: #0a0e17;
+  --ws-bg-secondary: #111827;
+  --ws-bg-card: #151d2e;
+  --ws-bg-card-hover: #1a2540;
+  --ws-bg-elevated: #1e293b;
+
+  /* Borders */
+  --ws-border: rgba(255, 255, 255, 0.06);
+  --ws-border-hover: rgba(255, 255, 255, 0.12);
+
+  /* Text */
+  --ws-text-primary: #f1f5f9;
+  --ws-text-secondary: #94a3b8;
+  --ws-text-muted: #64748b;
+
+  /* Accent colors */
+  --ws-accent: #3b82f6;
+  --ws-accent-glow: rgba(59, 130, 246, 0.15);
+
+  /* Risk colors */
+  --ws-risk-critical: #ef4444;
+  --ws-risk-high: #f97316;
+  --ws-risk-elevated: #eab308;
+  --ws-risk-moderate: #22c55e;
+  --ws-risk-low: #06b6d4;
+
+  /* Trend colors */
+  --ws-trend-rising: #ef4444;
+  --ws-trend-falling: #22c55e;
+  --ws-trend-stable: #94a3b8;
+  --ws-trend-volatile: #a855f7;
+
+  /* Glassmorphism */
+  --ws-glass-bg: rgba(15, 23, 42, 0.7);
+  --ws-glass-border: rgba(255, 255, 255, 0.08);
+
+  /* Sidebar */
+  --ws-sidebar-width: 260px;
+  --ws-sidebar-collapsed: 72px;
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+html,
+body {
+  height: 100%;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--ws-bg-primary);
+  color: var(--ws-text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ── Scrollbar ──────────────────────────────────────────────── */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+/* ── Card Glass ─────────────────────────────────────────────── */
+
+.ws-card {
+  background: var(--ws-bg-card);
+  border: 1px solid var(--ws-border);
+  border-radius: 16px;
+  padding: 24px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+}
+
+.ws-card::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.08),
+    transparent
+  );
+}
+
+.ws-card:hover {
+  background: var(--ws-bg-card-hover);
+  border-color: var(--ws-border-hover);
+  transform: translateY(-1px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+}
+
+/* ── Risk Badge ─────────────────────────────────────────────── */
+
+.ws-risk-critical {
+  color: var(--ws-risk-critical);
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+}
+
+.ws-risk-high {
+  color: var(--ws-risk-high);
+  background: rgba(249, 115, 22, 0.1);
+  border: 1px solid rgba(249, 115, 22, 0.2);
+}
+
+.ws-risk-elevated {
+  color: var(--ws-risk-elevated);
+  background: rgba(234, 179, 8, 0.1);
+  border: 1px solid rgba(234, 179, 8, 0.2);
+}
+
+.ws-risk-moderate {
+  color: var(--ws-risk-moderate);
+  background: rgba(34, 197, 94, 0.1);
+  border: 1px solid rgba(34, 197, 94, 0.2);
+}
+
+.ws-risk-low {
+  color: var(--ws-risk-low);
+  background: rgba(6, 182, 212, 0.1);
+  border: 1px solid rgba(6, 182, 212, 0.2);
+}
+
+/* ── Severity Badge ─────────────────────────────────────────── */
+
+.ws-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+
+/* ── Trend Indicator ────────────────────────────────────────── */
+
+.ws-trend-rising {
+  color: var(--ws-trend-rising);
+}
+
+.ws-trend-falling {
+  color: var(--ws-trend-falling);
+}
+
+.ws-trend-stable {
+  color: var(--ws-trend-stable);
+}
+
+.ws-trend-volatile {
+  color: var(--ws-trend-volatile);
+}
+
+/* ── Glow Effects ───────────────────────────────────────────── */
+
+.ws-glow-blue {
+  box-shadow: 0 0 20px rgba(59, 130, 246, 0.15),
+    0 0 60px rgba(59, 130, 246, 0.05);
+}
+
+.ws-glow-red {
+  box-shadow: 0 0 20px rgba(239, 68, 68, 0.15),
+    0 0 60px rgba(239, 68, 68, 0.05);
+}
+
+.ws-glow-green {
+  box-shadow: 0 0 20px rgba(34, 197, 94, 0.15),
+    0 0 60px rgba(34, 197, 94, 0.05);
+}
+
+/* ── Animations ─────────────────────────────────────────────── */
+
+@keyframes ws-pulse-glow {
+  0%,
+  100% {
+    opacity: 0.4;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+@keyframes ws-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes ws-slide-in-right {
+  from {
+    opacity: 0;
+    transform: translateX(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.ws-animate-fade-in {
+  animation: ws-fade-in 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+.ws-animate-slide-in {
+  animation: ws-slide-in-right 0.4s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+/* ── Stability Ring ─────────────────────────────────────────── */
+
+.ws-stability-ring {
+  position: relative;
+  width: 180px;
+  height: 180px;
+}
+
+.ws-stability-ring svg {
+  transform: rotate(-90deg);
+}
+
+.ws-stability-value {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── Monospace ──────────────────────────────────────────────── */
+
+.ws-mono {
+  font-family: "JetBrains Mono", "Fira Code", monospace;
+}

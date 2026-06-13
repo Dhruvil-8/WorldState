@@ -1,0 +1,64 @@
+# ===== Go =====
+backend/bin/
+backend/tmp/
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+vendor/
+
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+dist/
+build/
+.eggs/
+*.egg
+.venv/
+venv/
+ENV/
+.python-version
+
+# ===== Node.js / Next.js =====
+node_modules/
+.next/
+out/
+.vercel
+*.tsbuildinfo
+next-env.d.ts
+
+# ===== Docker =====
+docker-compose.override.yml
+
+# ===== Environment =====
+.env
+.env.local
+.env.*.local
+
+# ===== IDE =====
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# ===== Data volumes =====
+data/
+*.db
+*.sqlite
+
+# ===== Logs =====
+logs/
+*.log
+
+# ===== Coverage =====
+coverage/
+htmlcov/
+.coverage
